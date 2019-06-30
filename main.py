@@ -10,7 +10,7 @@ hyperparameters = {
     'buffer_start_size': 10001,
 	'buffer_size': 15000,
 	'epsilon': 1.0,
-	'decay': 1-1e-5,
+	'decay': 1-5e-6,
 	'epsilon_final': 0.02,
 	'learning_rate': 5e-5,
 	'gamma': 0.99,
@@ -22,13 +22,13 @@ BATCH_SIZE = 32
 
 env = atari_wrappers.wrap_deepmind(gym.make('PongNoFrameskip-v4'))
 if SAVE_VIDEO:
-    env = gym.wrappers.Monitor(env, "main-"+ENV_NAME, force=True)
+    env = gym.wrappers.Monitor(env, "main-"+ENV_NAME, force=True, video_callable=lambda episode_id: episode_id%20==0)
 
 obs = env.reset()
 
 agent = DQNAgent(hyperparameters)
 
-games_done = 0
+games_done = agent.games_done
 
 writer = summary.create_file_writer("logs")
 
@@ -38,6 +38,7 @@ with writer.as_default():
         new_obs, reward, done, _ = env.step(action)
         agent.store_memory(obs, action, reward, new_obs, done)
         agent.sample_and_optimize(BATCH_SIZE)
+        obs = new_obs
         if done:
             games_done, reward, mean_reward, epsilon, loss = agent.get_info()
 

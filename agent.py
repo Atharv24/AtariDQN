@@ -72,3 +72,5 @@ class DQNAgent():
     def reset(self):
         self.total_reward=0
         self.accumulated_loss=[]
+        if self.games_done%50 == 0:
+            self.moving_net.save("saved_models/model_games_done_{}.h5".format(self.games_done))
