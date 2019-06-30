@@ -10,11 +10,12 @@ hyperparameters = {
     'buffer_start_size': 10001,
 	'buffer_size': 15000,
 	'epsilon': 1.0,
-	'decay': 1-5e-6,
+	'decay': 0.99998,
 	'epsilon_final': 0.02,
 	'learning_rate': 5e-5,
 	'gamma': 0.99,
-	'iter_update_target': 1000
+    'tau' : 0.999,
+    'iter_update_interval' : 1000
 }
 
 MAX_GAMES = 3000
@@ -30,7 +31,7 @@ agent = DQNAgent(hyperparameters)
 
 games_done = agent.games_done
 
-writer = summary.create_file_writer("logs")
+writer = summary.create_file_writer("logs/DoubleDQN")
 
 with writer.as_default():
     while games_done < MAX_GAMES:
@@ -50,3 +51,4 @@ with writer.as_default():
 
             agent.reset()
             obs = env.reset()
+            print("Games Done: {}".format(games_done))

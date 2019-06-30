@@ -16,7 +16,8 @@ class DQNAgent():
         self.decay = hyperparameters['decay']
         self.lr = hyperparameters['learning_rate']
         self.gamma = hyperparameters['gamma']
-        self.iter_update_target = hyperparameters['iter_update_target']
+        self.tau = hyperparameters['tau']
+        self.iter_update_interval = hyperparameters['iter_update_interval']
         self.buffer = deque(maxlen=hyperparameters['buffer_size'])
         self.buffer_start_size = hyperparameters['buffer_start_size']
         self.accumulated_loss = []
@@ -54,15 +55,16 @@ class DQNAgent():
             next_states = []
             for i in indices:
                 states.append(self.buffer[i].obs)
-                actions.append(self.buffer[i].action)
+                actions.append(int(self.buffer[i].action))
                 rewards.append(self.buffer[i].reward)
                 next_states.append(self.buffer[i].next_obs)
             minibatch = (np.asarray(states, 'float32'), np.asarray(actions, 'int32'), np.asarray(rewards, 'float32'), np.asarray(next_states, 'float32'))
             loss = optimize(self.moving_net, self.target_net, minibatch, self.gamma)
             self.accumulated_loss.append(loss)
 
-        if self.iter_done % self.iter_update_target:
+        if self.iter_done % self.iter_update_interval == 0:
             self.target_net.set_weights(self.moving_net.get_weights())
+        #self.target_net.set_weights(np.multiply(self.target_net.get_weights(), self.tau) + np.multiply(self.moving_net.get_weights(), (1-self.tau)))
     
     def get_info(self):
         self.rewards.append(self.total_reward)
